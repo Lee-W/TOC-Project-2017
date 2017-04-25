@@ -3,12 +3,46 @@ import sys
 import telegram
 from flask import Flask, request
 
+from fsm import TocMachine
+
 
 API_TOKEN = 'Your Telegram API Token'
 WEBHOOK_URL = 'Your Webhook URL'
 
 app = Flask(__name__)
 bot = telegram.Bot(token=API_TOKEN)
+machine = TocMachine(
+    states=[
+        'user',
+        'state1',
+        'state2'
+    ],
+    transitions=[
+        {
+            'trigger': 'advance',
+            'source': 'user',
+            'dest': 'state1',
+            'conditions': 'is_going_to_state1'
+        },
+        {
+            'trigger': 'advance',
+            'source': 'user',
+            'dest': 'state2',
+            'conditions': 'is_going_to_state2'
+        },
+        {
+            'trigger': 'go_back',
+            'source': [
+                'state1',
+                'state2'
+            ],
+            'dest': 'user'
+        }
+    ],
+    initial='user',
+    auto_transitions=False,
+    show_conditions=True,
+)
 
 
 def _set_webhook():
@@ -23,8 +57,7 @@ def _set_webhook():
 @app.route('/hook', methods=['POST'])
 def webhook_handler():
     update = telegram.Update.de_json(request.get_json(force=True), bot)
-    text = update.message.text
-    update.message.reply_text(text)
+    machine.advance(update)
     return 'ok'
 
 
