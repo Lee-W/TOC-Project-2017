@@ -47,7 +47,7 @@ python3 app.py
 ## Usage
 The initial state is set to `user`.
 
-Everytime `user` state is triggered to `advance` to another state, it will `go_back` to `user` state after the bot replies corresponding message.
+Every time `user` state is triggered to `advance` to another state, it will `go_back` to `user` state after the bot replies corresponding message.
 
 * user
 	* Input: "go to state1"
